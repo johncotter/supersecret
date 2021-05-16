@@ -1,0 +1,142 @@
+<html>
+<title>Super Solver</title>
+<script>
+    function encodeString() {
+        var decodedtxt = document.getElementById("decodedtxt").value;
+        var codedtxt = document.getElementById("codedtxt");
+
+        codedtxt.value = "";
+        for (var x = 0, c = "";
+            (c = decodedtxt.charAt(x)); x++) {
+            var pos = mappedLetters.indexOf(c.toUpperCase());
+            if (pos > -1) {
+                c = letters[pos];
+            }
+            codedtxt.value = `${codedtxt.value}${c}`;
+        }
+    }
+
+    function dencodeString() {
+        var decodedtxt = document.getElementById("decodedtxt");
+        var codedtxt = document.getElementById("codedtxt").value;
+
+        decodedtxt.value = "";
+        for (var x = 0, c = "";
+            (c = codedtxt.charAt(x)); x++) {
+            var pos = letters.indexOf(c.toUpperCase());
+            if (pos > -1) {
+                c = mappedLetters[pos];
+            }
+            decodedtxt.value = `${decodedtxt.value}${c}`;
+        }
+    }
+
+    function updateDecoded() {}
+</script>
+
+<body>
+    <h1>Super Solver</h1>
+    <h2>Decode Matrix</h2>
+    <div id="mapper" style="display: flex"></div>
+    <div id="errMsg"></div>
+    <div style="display: flex; flex-direction: row; grid-gap: 15px">
+        <div style="display: flex; flex-direction: column; flex: 1">
+            <h2>ENCODED</h2>
+            <textarea id="codedtxt" rows="25" oninput="dencodeString()"></textarea>
+        </div>
+        <div style="align-self: center">
+            <button onClick="encodeString()">&lt; Encode</button><br />
+            <button onClick="dencodeString()">Decode &gt;</button>
+        </div>
+        <div style="display: flex; flex-direction: column; flex: 1">
+            <h2>DECODED</h2>
+            <textarea id="decodedtxt" rows="25" oninput="encodeString()">
+I am a test</textarea
+        >
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var letters = [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+    ];
+    var mappedLetters = localStorage.getItem("mappedLetters");
+    if (mappedLetters) {
+      console.log(mappedLetters);
+      mappedLetters = JSON.parse(mappedLetters);
+    } else {
+      mappedLetters = letters;
+    }
+    var mapper = document.getElementById("mapper");
+    letters.forEach((letter) => {
+      var container = document.createElement("div");
+      container.style.display = "flex";
+      container.style.flexDirection = "column";
+      var letterInput = document.createElement("input");
+      var pos = letters.indexOf(letter);
+      letterInput.defaultValue = mappedLetters[pos];
+      letterInput["data-letter"] = letter;
+      letterInput.onchange = updateMappedLetters;
+      letterInput.maxLength = 1;
+      letterInput.style.maxWidth = "30px";
+      var letterLabel = document.createElement("span");
+      letterLabel.innerHTML = letter;
+
+      container.appendChild(letterLabel);
+      container.appendChild(letterInput);
+
+      mapper.appendChild(container);
+    });
+
+    function updateMappedLetters(event) {
+      var errMsg = document.getElementById("errMsg");
+      errMsg.innerHTML = "";
+      var pos = letters.indexOf(event.target["data-letter"]);
+      mappedLetters[pos] = event.target.value.toUpperCase();
+      event.target.value = mappedLetters[pos];
+
+      mappedLetters.forEach((letter) => {
+        const result = mappedLetters.filter((mapLetter) => mapLetter == letter);
+        if (result.length > 1) {
+          errMsg.innerHTML = "Oops you have the same letter more than once";
+        }
+      });
+
+      console.log(
+        pos,
+        event.target["data-letter"],
+        event.target.value,
+        mappedLetters
+      );
+      localStorage.setItem("mappedLetters", JSON.stringify(mappedLetters));
+    }
+  </script>
+</html>
+<!-- 
+["N","Z","Y","J","M","U","F","B","W","O","X","E","H","G","D","A","R","K","T","I","P","L","Q","C","S","V"] -->
