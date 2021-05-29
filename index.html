@@ -6,6 +6,7 @@
         var codedtxt = document.getElementById("codedtxt");
 
         codedtxt.value = "";
+
         for (var x = 0, c = "";
             (c = decodedtxt.charAt(x)); x++) {
             var pos = mappedLetters.indexOf(c.toUpperCase());
@@ -31,28 +32,65 @@
         }
     }
 
-    function updateDecoded() {}
+    function resetMatrix() {
+        mappedLetters = [...letters];
+        localStorage.setItem("mappedLetters", JSON.stringify(mappedLetters));
+
+        document.querySelectorAll("#mapper input").forEach((input) => {
+            input.value = input["original-letter"];
+        });
+    }
+
+    function scrambleMatrix() {
+        mappedLetters = [...letters];
+        mappedLetters.sort(() => (Math.random() > 0.5 ? 1 : -1));
+        localStorage.setItem("mappedLetters", JSON.stringify(mappedLetters));
+
+        document.querySelectorAll("#mapper input").forEach((input, index) => {
+            //var pos = letters.indexOf(input["original-letter"]);
+            input.value = mappedLetters[index];
+        });
+    }
+
+    function generateMappedString() {
+        var hintArray = [];
+        mappedLetters.forEach((letter, index) => {
+            hintArray.push(`${letter}:${index + 1}`);
+        });
+        hintArray.sort(() => (Math.random() > 0.5 ? 1 : -1));
+        console.log(hintArray);
+    }
 </script>
 
 <body>
     <h1>Super Solver</h1>
-    <h2>Decode Matrix</h2>
-    <div id="mapper" style="display: flex"></div>
-    <div id="errMsg"></div>
+    <hr />
+    <div style="display: flex">
+        <div style="display: flex; flex-direction: column">
+            <h2>DECODE MATRIX</h2>
+            <div id="mapper" style="display: flex"></div>
+            <div id="errMsg"></div>
+        </div>
+        <!-- <div style="display: flex; flex-direction: column">
+            <h3>Tools</h3>
+            <button onClick="resetMatrix()">Reset Matrix</button>
+            <button onClick="scrambleMatrix()">Scramble Matrix</button>
+            <button onClick="generateMappedString()">Generate String</button>
+        </div> -->
+    </div>
+    <hr />
     <div style="display: flex; flex-direction: row; grid-gap: 15px">
         <div style="display: flex; flex-direction: column; flex: 1">
-            <h2>ENCODED</h2>
+            <h2>ENCODED MESSAGE</h2>
             <textarea id="codedtxt" rows="25" oninput="dencodeString()"></textarea>
-        </div>
-        <div style="align-self: center">
-            <button onClick="encodeString()">&lt; Encode</button><br />
             <button onClick="dencodeString()">Decode &gt;</button>
         </div>
         <div style="display: flex; flex-direction: column; flex: 1">
-            <h2>DECODED</h2>
+            <h2>DECODED MESSAGE</h2>
             <textarea id="decodedtxt" rows="25" oninput="encodeString()">
 I am a test</textarea
         >
+        <button onClick="encodeString()">&lt; Encode</button>
       </div>
     </div>
   </body>
@@ -88,10 +126,9 @@ I am a test</textarea
     ];
     var mappedLetters = localStorage.getItem("mappedLetters");
     if (mappedLetters) {
-      console.log(mappedLetters);
       mappedLetters = JSON.parse(mappedLetters);
     } else {
-      mappedLetters = letters;
+      mappedLetters = [...letters];
     }
     var mapper = document.getElementById("mapper");
     letters.forEach((letter) => {
@@ -101,7 +138,7 @@ I am a test</textarea
       var letterInput = document.createElement("input");
       var pos = letters.indexOf(letter);
       letterInput.defaultValue = mappedLetters[pos];
-      letterInput["data-letter"] = letter;
+      letterInput["original-letter"] = letter;
       letterInput.onchange = updateMappedLetters;
       letterInput.maxLength = 1;
       letterInput.style.maxWidth = "30px";
@@ -117,8 +154,9 @@ I am a test</textarea
     function updateMappedLetters(event) {
       var errMsg = document.getElementById("errMsg");
       errMsg.innerHTML = "";
-      var pos = letters.indexOf(event.target["data-letter"]);
+      var pos = letters.indexOf(event.target["original-letter"]);
       mappedLetters[pos] = event.target.value.toUpperCase();
+
       event.target.value = mappedLetters[pos];
 
       mappedLetters.forEach((letter) => {
@@ -128,12 +166,6 @@ I am a test</textarea
         }
       });
 
-      console.log(
-        pos,
-        event.target["data-letter"],
-        event.target.value,
-        mappedLetters
-      );
       localStorage.setItem("mappedLetters", JSON.stringify(mappedLetters));
     }
   </script>
